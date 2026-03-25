@@ -1,0 +1,63 @@
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 3px; }
+* { scrollbar-width: thin; scrollbar-color: rgba(99,102,241,0.3) transparent; }
+::selection { background: rgba(99,102,241,0.3); }
+
+.glass {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.light .glass {
+  background: rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Range slider */
+input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; width: 100%; cursor: pointer; }
+input[type=range]::-webkit-slider-track { height: 8px; border-radius: 4px; background: rgba(99,102,241,0.2); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: #6366f1; margin-top: -10px; box-shadow: 0 0 12px rgba(99,102,241,0.5); transition: transform 0.15s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-track { height: 8px; border-radius: 4px; background: rgba(99,102,241,0.2); border: none; }
+input[type=range]::-moz-range-thumb { height: 28px; width: 28px; border-radius: 50%; background: #6366f1; border: none; box-shadow: 0 0 12px rgba(99,102,241,0.5); }
+.light input[type=range]::-webkit-slider-track { background: rgba(99,102,241,0.15); }
+.light input[type=range]::-moz-range-track { background: rgba(99,102,241,0.15); }
+
+/* Confetti */
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+}
+.confetti {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confetti-fall 3s ease-in forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Progress bar pulse */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(99,102,241,0.3); }
+  50% { box-shadow: 0 0 12px rgba(99,102,241,0.6); }
+}
+.progress-bar { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* Screen transitions */
+.screen-enter { animation: slideUp 0.3s ease-out; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
