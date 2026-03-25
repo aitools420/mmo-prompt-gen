@@ -4,7 +4,30 @@ const MODELS = [
   "qwen/qwen3-coder:free",
 ];
 
+// In-memory sliding window rate limit — resets when isolate recycles
+// Generous: 20 req/min per IP. Legitimate users do ~2-3 polishes per session.
+const hits = new Map();
+const WINDOW_MS = 60_000;
+const MAX_HITS = 20;
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const timestamps = (hits.get(ip) || []).filter(t => now - t < WINDOW_MS);
+  if (timestamps.length >= MAX_HITS) return true;
+  timestamps.push(now);
+  hits.set(ip, timestamps);
+  return false;
+}
+
 export async function onRequestPost(context) {
+  const ip = context.request.headers.get("CF-Connecting-IP") || "unknown";
+  if (isRateLimited(ip)) {
+    return new Response(JSON.stringify({ error: "Too many requests" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", "Retry-After": "60" },
+    });
+  }
+
   const apiKey = context.env.OPENROUTER_API_KEY;
   const body = await context.request.json();
   const raw = body.prompt || "";
