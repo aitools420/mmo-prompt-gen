@@ -19,9 +19,26 @@ function isRateLimited(ip) {
   return false;
 }
 
+function todayKey() {
+  return `stats:${new Date().toISOString().slice(0, 10)}`;
+}
+
+async function logStat(kv, field, model) {
+  if (!kv) return;
+  const key = todayKey();
+  const raw = await kv.get(key);
+  const stats = raw ? JSON.parse(raw) : { ok: 0, fail: 0, rate_limited: 0, models: {} };
+  stats[field] = (stats[field] || 0) + 1;
+  if (model) stats.models[model] = (stats.models[model] || 0) + 1;
+  await kv.put(key, JSON.stringify(stats), { expirationTtl: 60 * 60 * 24 * 30 });
+}
+
 export async function onRequestPost(context) {
+  const kv = context.env.STATS;
   const ip = context.request.headers.get("CF-Connecting-IP") || "unknown";
+
   if (isRateLimited(ip)) {
+    context.waitUntil(logStat(kv, "rate_limited"));
     return new Response(JSON.stringify({ error: "Too many requests" }), {
       status: 429,
       headers: { "Content-Type": "application/json", "Retry-After": "60" },
@@ -65,6 +82,7 @@ ${raw}`;
       clearTimeout(timer);
       const data = await resp.json();
       if (data.choices) {
+        context.waitUntil(logStat(kv, "ok", model));
         return Response.json({ polished: data.choices[0].message.content });
       }
     } catch {
@@ -72,5 +90,6 @@ ${raw}`;
     }
   }
 
+  context.waitUntil(logStat(kv, "fail"));
   return Response.json({ polished: raw });
 }
