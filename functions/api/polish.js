@@ -47,6 +47,8 @@ ${raw}`;
 
   for (const model of MODELS) {
     try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 25_000);
       const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -58,7 +60,9 @@ ${raw}`;
           messages: [{ role: "user", content: promptMsg }],
           max_tokens: 1500,
         }),
+        signal: controller.signal,
       });
+      clearTimeout(timer);
       const data = await resp.json();
       if (data.choices) {
         return Response.json({ polished: data.choices[0].message.content });
