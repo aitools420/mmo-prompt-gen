@@ -600,7 +600,7 @@
           if (this.answers.promptMode !== 'all') {
             this.polishing = true;
             try {
-              const resp = await fetch('/api/polish', {
+              const resp = await fetch('/polish', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: this.displayPrompt() }),
